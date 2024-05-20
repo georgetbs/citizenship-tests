@@ -1,0 +1,17 @@
+[
+    {
+      "id": 1,
+      "question": "When did Georgia declare independence from the Soviet Union?",
+      "options": ["1990", "1991", "1992"],
+      "answer": "1991",
+      "hint": "Shortly after the collapse of the Soviet Union."
+    },
+    {
+      "id": 2,
+      "question": "Who is considered the founding father of modern Georgia?",
+      "options": ["David IV", "George V", "Erekle II"],
+      "answer": "David IV",
+      "hint": "Known as David the Builder."
+    }
+  ]
+  

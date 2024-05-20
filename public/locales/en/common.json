@@ -1,0 +1,17 @@
+{
+  "welcome": "Welcome to the Citizenship Test",
+  "language_test": "Language Test",
+  "history_test": "History Test",
+  "law_test": "Law Test",
+  "start_exam": "Start Exam",
+  "study_mode": "Study Mode",
+  "choose_categories": "Choose Categories",
+  "start_study": "Start Study",
+  "question": "Question",
+  "next": "Next",
+  "previous": "Previous",
+  "finish": "Finish",
+  "submit": "Submit",
+  "time_left": "Time Left",
+  "select_language": "Select Language"
+}

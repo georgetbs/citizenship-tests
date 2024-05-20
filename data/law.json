@@ -1,0 +1,17 @@
+[
+    {
+      "id": 1,
+      "question": "What is the highest legal authority in Georgia?",
+      "options": ["The President", "The Parliament", "The Constitution"],
+      "answer": "The Constitution",
+      "hint": "The fundamental principles and established precedents according to which a state is governed."
+    },
+    {
+      "id": 2,
+      "question": "Who enforces the laws in Georgia?",
+      "options": ["The Police", "The Parliament", "The Judiciary"],
+      "answer": "The Judiciary",
+      "hint": "The system of courts that interprets and applies the law in the name of the state."
+    }
+  ]
+  

@@ -1,0 +1,17 @@
+{
+  "welcome": "მოგესალმებით მოქალაქეობის ტესტში",
+  "language_test": "ენის ტესტი",
+  "history_test": "ისტორიის ტესტი",
+  "law_test": "სამართლის ტესტი",
+  "start_exam": "გამოცდის დაწყება",
+  "study_mode": "სასწავლო რეჟიმი",
+  "choose_categories": "აირჩიეთ კატეგორიები",
+  "start_study": "სწავლის დაწყება",
+  "question": "კითხვა",
+  "next": "შემდეგი",
+  "previous": "წინა",
+  "finish": "დასრულება",
+  "submit": "გაგზავნა",
+  "time_left": "დარჩენილი დრო",
+  "select_language": "აირჩიეთ ენა"
+}

@@ -1,0 +1,17 @@
+[
+    {
+      "id": 1,
+      "question": "What is the capital of Georgia?",
+      "options": ["Tbilisi", "Kutaisi", "Batumi"],
+      "answer": "Tbilisi",
+      "hint": "The capital and largest city of Georgia."
+    },
+    {
+      "id": 2,
+      "question": "What is the official language of Georgia?",
+      "options": ["Georgian", "Russian", "English"],
+      "answer": "Georgian",
+      "hint": "The language spoken by the majority of the population."
+    }
+  ]
+  
