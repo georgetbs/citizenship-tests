@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import Modal from 'react-modal';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Question from '../components/Question';
@@ -18,15 +19,16 @@ const categoryData = {
 
 const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
 
+Modal.setAppElement('#__next');
+
 export default function Test() {
   const { t } = useTranslation('common');
   const router = useRouter();
   const { mode } = router.query;
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [showHint, setShowHint] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -35,42 +37,44 @@ export default function Test() {
   const [numQuestions, setNumQuestions] = useState(200);
   const [questionSet, setQuestionSet] = useState('first');
   const [useNumQuestions, setUseNumQuestions] = useState(true);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [alertMessage, setAlertMessage] = useState('');
 
   const handleStart = () => {
-    if (selectedCategories.length === 0) {
-      alert(t('please_select_category'));
+    if (!selectedCategory) {
+      setAlertMessage(t('please_select_category'));
+      setIsConfirmModalOpen(true);
       return;
     }
 
     let allQuestions = [];
-    selectedCategories.forEach((category) => {
-      const data = categoryData[category] || [];
-      if (mode === 'study') {
-        if (useNumQuestions) {
-          allQuestions = [...allQuestions, ...shuffleArray(data).slice(0, numQuestions)];
-        } else {
-          switch (questionSet) {
-            case 'first':
-              allQuestions = [...allQuestions, ...data.slice(0, 50)];
-              break;
-            case 'second':
-              allQuestions = [...allQuestions, ...data.slice(50, 100)];
-              break;
-            case 'third':
-              allQuestions = [...allQuestions, ...data.slice(100, 150)];
-              break;
-            case 'fourth':
-              allQuestions = [...allQuestions, ...data.slice(150, 200)];
-              break;
-            default:
-              allQuestions = [...allQuestions, ...data];
-              break;
-          }
-        }
+    const data = categoryData[selectedCategory] || [];
+    if (mode === 'study') {
+      if (useNumQuestions) {
+        allQuestions = shuffleArray(data).slice(0, numQuestions);
       } else {
-        allQuestions = [...allQuestions, ...data];
+        switch (questionSet) {
+          case 'first':
+            allQuestions = data.slice(0, 50);
+            break;
+          case 'second':
+            allQuestions = data.slice(50, 100);
+            break;
+          case 'third':
+            allQuestions = data.slice(100, 150);
+            break;
+          case 'fourth':
+            allQuestions = data.slice(150, 200);
+            break;
+          default:
+            allQuestions = data;
+            break;
+        }
       }
-    });
+    } else {
+      allQuestions = data;
+    }
 
     if (mode === 'exam') {
       setQuestions(shuffleArray(allQuestions).slice(0, 10));
@@ -100,50 +104,52 @@ export default function Test() {
 
   const handleNext = () => {
     setCurrentQuestionIndex((prevIndex) => Math.min(prevIndex + 1, questions.length - 1));
-    setShowHint(false); // Скрыть подсказку при переходе к следующему вопросу
   };
 
   const handlePrevious = () => {
     setCurrentQuestionIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-    setShowHint(false); // Скрыть подсказку при возврате к предыдущему вопросу
   };
 
   const handleFinish = () => {
     if (Object.keys(selectedAnswers).length < questions.length) {
-      alert(t('please_answer_all_questions'));
+      setAlertMessage(t('please_answer_all_questions'));
+      setIsConfirmModalOpen(true);
       return;
     }
 
-    if (confirm(t('finish') + '?')) {
-      let correct = 0;
-      let incorrect = 0;
+    setConfirmAction(() => confirmFinish);
+    setIsConfirmModalOpen(true);
+  };
 
-      questions.forEach((question) => {
-        if (selectedAnswers[question.id] === question.answer) {
-          correct++;
-        } else {
-          incorrect++;
-        }
-      });
+  const confirmFinish = () => {
+    let correct = 0;
+    let incorrect = 0;
 
-      setCorrectCount(correct);
-      setIncorrectCount(incorrect);
-
-      if (mode === 'exam') {
-        const passPercentage = (correct / questions.length) * 100;
-        setPass(passPercentage >= 70);
+    questions.forEach((question) => {
+      if (selectedAnswers[question.id] === question.answer) {
+        correct++;
+      } else {
+        incorrect++;
       }
+    });
 
-      setShowResults(true);
+    setCorrectCount(correct);
+    setIncorrectCount(incorrect);
+
+    if (mode === 'exam') {
+      const passPercentage = (correct / questions.length) * 100;
+      setPass(passPercentage >= 70);
     }
+
+    setShowResults(true);
+    setIsConfirmModalOpen(false);
   };
 
   const handleRestart = () => {
-    setSelectedCategories([]);
+    setSelectedCategory('');
     setQuestions([]);
     setCurrentQuestionIndex(0);
     setSelectedAnswers({});
-    setShowHint(false);
     setShowResults(false);
     setCorrectCount(0);
     setIncorrectCount(0);
@@ -157,68 +163,121 @@ export default function Test() {
     });
   };
 
+  const openConfirmModal = (action) => {
+    setConfirmAction(() => action);
+    setIsConfirmModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsConfirmModalOpen(false);
+    setConfirmAction(null);
+  };
+
   return (
-    <div className="container mx-auto">
-      <Header />
-      <main className="p-10">
+    <div className="flex flex-col min-h-screen">
+      <Header openConfirmModal={openConfirmModal} />
+      <main className="flex-grow p-10">
         {!questions.length ? (
           <div>
             <h1 className="text-3xl mb-8">{t('choose_categories')}</h1>
             <div className="mb-4">
-              <label className="block">
-                <input
-                  type="checkbox"
-                  value="language"
-                  onChange={(e) =>
-                    setSelectedCategories(
-                      e.target.checked
-                        ? [...selectedCategories, e.target.value]
-                        : selectedCategories.filter((cat) => cat !== e.target.value)
-                    )
-                  }
-                />{' '}
-                {t('language_test')}
-              </label>
-              <label className="block">
-                <input
-                  type="checkbox"
-                  value="history"
-                  onChange={(e) =>
-                    setSelectedCategories(
-                      e.target.checked
-                        ? [...selectedCategories, e.target.value]
-                        : selectedCategories.filter((cat) => cat !== e.target.value)
-                    )
-                  }
-                />{' '}
-                {t('history_test')}
-              </label>
-              <label className="block">
-                <input
-                  type="checkbox"
-                  value="law"
-                  onChange={(e) =>
-                    setSelectedCategories(
-                      e.target.checked
-                        ? [...selectedCategories, e.target.value]
-                        : selectedCategories.filter((cat) => cat !== e.target.value)
-                    )
-                  }
-                />{' '}
-                {t('law_test')}
-              </label>
+              {mode === 'exam' ? (
+                <>
+                  <label className="block text-3xl">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="language"
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      checked={selectedCategory === 'language'}
+                      className="mr-2 transform scale-150"
+                    />{' '}
+                    {t('language_test')}
+                  </label>
+                  <label className="block text-3xl">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="history"
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      checked={selectedCategory === 'history'}
+                      className="mr-2 transform scale-150"
+                    />{' '}
+                    {t('history_test')}
+                  </label>
+                  <label className="block text-3xl">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="law"
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      checked={selectedCategory === 'law'}
+                      className="mr-2 transform scale-150"
+                    />{' '}
+                    {t('law_test')}
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label className="block text-3xl">
+                    <input
+                      type="checkbox"
+                      value="language"
+                      onChange={(e) =>
+                        setSelectedCategory(
+                          e.target.checked
+                            ? [...selectedCategory, e.target.value]
+                            : selectedCategory.filter((cat) => cat !== e.target.value)
+                        )
+                      }
+                      className="mr-2 transform scale-150"
+                    />{' '}
+                    {t('language_test')}
+                  </label>
+                  <label className="block text-3xl">
+                    <input
+                      type="checkbox"
+                      value="history"
+                      onChange={(e) =>
+                        setSelectedCategory(
+                          e.target.checked
+                            ? [...selectedCategory, e.target.value]
+                            : selectedCategory.filter((cat) => cat !== e.target.value)
+                        )
+                      }
+                      className="mr-2 transform scale-150"
+                    />{' '}
+                    {t('history_test')}
+                  </label>
+                  <label className="block text-3xl">
+                    <input
+                      type="checkbox"
+                      value="law"
+                      onChange={(e) =>
+                        setSelectedCategory(
+                          e.target.checked
+                            ? [...selectedCategory, e.target.value]
+                            : selectedCategory.filter((cat) => cat !== e.target.value)
+                        )
+                      }
+                      className="mr-2 transform scale-150"
+                    />{' '}
+                    {t('law_test')}
+                  </label>
+                </>
+              )}
             </div>
             {mode === 'study' && (
               <div className="mb-4">
                 <div className="flex items-center mb-2">
-                  <label className="flex items-center cursor-pointer">
+                  <label className="flex items-center cursor-pointer text-3xl">
                     <input
                       type="radio"
                       name="questionMode"
                       value="number"
                       checked={useNumQuestions}
                       onChange={() => setUseNumQuestions(true)}
-                      className="mr-2"
+                      className="mr-2 transform scale-150"
                     />
                     {t('select_number_of_questions')}
                   </label>
@@ -231,14 +290,14 @@ export default function Test() {
                   disabled={!useNumQuestions}
                 />
                 <div className="flex items-center mb-2">
-                  <label className="flex items-center cursor-pointer">
+                  <label className="flex items-center cursor-pointer text-3xl">
                     <input
                       type="radio"
                       name="questionMode"
                       value="set"
                       checked={!useNumQuestions}
                       onChange={() => setUseNumQuestions(false)}
-                      className="mr-2"
+                      className="mr-2 transform scale-150"
                     />
                     {t('select_question_set')}
                   </label>
@@ -257,7 +316,7 @@ export default function Test() {
                 </select>
               </div>
             )}
-            <button onClick={handleStart} className="p-2 border border-primary">
+            <button onClick={handleStart} className="p-2 border-2 border-primary">
               {mode === 'exam' ? t('start_exam') : t('start_study')}
             </button>
           </div>
@@ -268,7 +327,13 @@ export default function Test() {
               {questions.map((question, index) => (
                 <li key={question.id} className="mb-4">
                   <p>
-                    {index + 1}. {question.question}
+                    {index + 1}.{' '}
+                    {question.question.split('\n').map((line, index) => (
+                      <span key={index}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
                   </p>
                   <p>
                     {t('your_answer')}: {selectedAnswers[question.id]}
@@ -312,8 +377,6 @@ export default function Test() {
                 totalQuestions={questions.length}
                 selectedAnswer={selectedAnswers[questions[currentQuestionIndex]?.id]}
                 onAnswer={handleAnswer}
-                showHint={showHint}
-                setShowHint={setShowHint}
                 mode={mode}
               />
             )}
@@ -326,7 +389,7 @@ export default function Test() {
                   {t('next')}
                 </button>
               ) : (
-                <button onClick={handleFinish} className="p-2">
+                <button onClick={handleFinish} className="p-2 border">
                   {t('submit')}
                 </button>
               )}
@@ -334,7 +397,34 @@ export default function Test() {
           </>
         )}
       </main>
-      <Footer />
+   
+
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onRequestClose={closeConfirmModal}
+        className="flex items-center justify-center h-screen"
+        overlayClassName="fixed inset-0 bg-gray-500 bg-opacity-75"
+      >
+        <div className="bg-white p-6 rounded shadow-lg">
+          <h2 className="text-xl mb-4">{alertMessage || t('confirm_action')}</h2>
+          <div className="flex justify-end space-x-4">
+            <button onClick={closeConfirmModal} className="px-4 py-2 border border-primary text-primary">
+              {t('ok')}
+            </button>
+            {confirmAction && (
+              <button
+                onClick={() => {
+                  confirmAction();
+                  closeConfirmModal();
+                }}
+                className="px-4 py-2 bg-primary text-white"
+              >
+                {t('yes')}
+              </button>
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

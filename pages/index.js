@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 import LanguageSelector from '../components/LanguageSelector';
 
 export default function Home() {
@@ -28,7 +27,7 @@ export default function Home() {
         <div className="mt-8">
         </div>
       </main>
-      <Footer />
+    
     </div>
   );
 }

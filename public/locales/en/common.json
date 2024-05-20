@@ -1,5 +1,5 @@
 {
-  "welcome": "Welcome to the Citizenship Tests",
+  "welcome": "Welcome to the Citizenship Tests of Georgia",
   "start_exam": "Start Exam",
   "start_study": "Start Study",
   "study_mode": "Study Mode",
@@ -25,12 +25,9 @@
   "pass": "Pass",
   "fail": "Fail",
   "restart": "Restart",
-  "show_hint": "Show Hint",
   "please_select_category": "Please select at least one category",
   "please_answer_all_questions": "Please answer all questions before submitting.",
-  "correct_answer_message": "Correct!",
-  "incorrect_answer_message": "Incorrect. The correct answer is {{correctAnswer}}.",
-  "header_title": "Citizenship Tests",
+  "header_title": "Citizenship Tests of Georgia",
   "home": "Home",
   "study": "Study",
   "exam": "Exam",
@@ -41,5 +38,7 @@
   "second_50": "Second 50",
   "third_50": "Third 50",
   "fourth_50": "Fourth 50",
-  "all_200": "All 200"
+  "all_200": "All 200",
+  "confirm_action": "Are you sure you want to proceed?",
+  "ok":"OK"
 }
