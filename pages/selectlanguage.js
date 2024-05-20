@@ -15,9 +15,9 @@ export default function SelectLanguage() {
     <div className="container mx-auto text-center p-10">
       <h1 className="text-3xl mb-8">{t('select_language')}</h1>
       <div className="space-y-4">
-        <button onClick={() => handleLanguageSelect('en')} className="block p-4 border-2 border-primary text-primary">English</button>
-        <button onClick={() => handleLanguageSelect('ru')} className="block p-4 border-2 border-primary text-primary">Русский</button>
-        <button onClick={() => handleLanguageSelect('ka')} className="block p-4 border-2 border-primary text-primary">ქართული</button>
+        <button onClick={() => handleLanguageSelect('en')} className="block p-4 border border-primary text-primary">English</button>
+        <button onClick={() => handleLanguageSelect('ru')} className="block p-4 border border-primary text-primary">Русский</button>
+        <button onClick={() => handleLanguageSelect('ka')} className="block p-4 border border-primary text-primary">ქართული</button>
       </div>
     </div>
   );

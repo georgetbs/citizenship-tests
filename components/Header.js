@@ -1,40 +1,43 @@
-import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import LanguageSelector from './LanguageSelector';
 
 export default function Header() {
-  const { t } = useTranslation('common');
   const router = useRouter();
+  const { t } = useTranslation('common');
+  const { mode } = router.query;
 
-  const changeLanguage = (lang) => {
-    localStorage.setItem('language', lang);
-    router.push(router.pathname, router.asPath, { locale: lang });
+  const handleNavigation = (path) => {
+    if (mode) {
+      const confirmNavigation = confirm(t('confirm_navigation'));
+      if (!confirmNavigation) return;
+    }
+    router.push(path);
   };
 
   return (
-    <header className="p-4 border-b-2 border-primary">
-      <nav className="flex justify-between items-center">
-        <Link href="/">
-          <span className="text-primary cursor-pointer">{t('welcome')}</span>
-        </Link>
-        <div>
-          <Link href="/test?mode=exam">
-            <span className="mr-4 cursor-pointer">{t('start_exam')}</span>
-          </Link>
-          <Link href="/test?mode=study">
-            <span className="cursor-pointer">{t('study_mode')}</span>
-          </Link>
-          <select
-            onChange={(e) => changeLanguage(e.target.value)}
-            className="ml-4 border-2 border-primary p-1"
-          >
-            <option value="en">English</option>
-            <option value="ru">Русский</option>
-            <option value="ka">ქართული</option>
-          </select>
-        </div>
+    <header className="p-4 border-b-2 border-primary flex justify-between items-center">
+      <h1 className="text-2xl hidden md:block">{t('header_title')}</h1>
+      <nav className="flex-grow text-center">
+        <ul className="flex space-x-4 justify-center">
+          <li>
+            <button onClick={() => handleNavigation('/')} className="text-primary hover:underline">
+              {t('home')}
+            </button>
+          </li>
+          <li>
+            <button onClick={() => handleNavigation('/test?mode=study')} className="text-primary hover:underline">
+              {t('study')}
+            </button>
+          </li>
+          <li>
+            <button onClick={() => handleNavigation('/test?mode=exam')} className="text-primary hover:underline">
+              {t('exam')}
+            </button>
+          </li>
+        </ul>
       </nav>
+      {router.pathname === '/' && <LanguageSelector />}
     </header>
-  )
+  );
 }
-
